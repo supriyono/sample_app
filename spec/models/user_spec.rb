@@ -2,11 +2,13 @@
 #
 # Table name: users
 #
-#  id         :integer          not null, primary key
-#  name       :string(255)
-#  email      :string(255)
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id         		:integer          not null, primary key
+#  name       		:string(255)
+#  email      		:string(255)
+#  password_digest	:string(255)
+#  remember_token	:string(255)
+#  created_at 		:datetime         not null
+#  updated_at 		:datetime         not null
 #
 
 require 'spec_helper'
@@ -24,6 +26,7 @@ describe User do
 	it { should respond_to(:password_digest) }
 	it { should respond_to(:password) }
 	it { should respond_to(:password_confirmation) }
+	it { should respond_to(:remember_token) }
 	it { should respond_to(:authenticate) }
 
 	it { should be_valid }
@@ -33,15 +36,18 @@ describe User do
 		it { should_not be_valid }
 	end
 
+
 	describe "when email is not present" do
 		before { @user.email = " " }
 		it { should_not be_valid }
 	end
 
+
 	describe "when name is too long" do
 		before { @user.name = "a"*51 }
 		it { should_not be_valid }
 	end
+
 
 	describe "when email format is invalid" do
 		it "should be invalid" do
@@ -53,6 +59,7 @@ describe User do
 		end
 	end
 
+
 	describe "when email format is valid" do
 		it "should be valid" do
 			addresses = %w[user@foo.COM A_US_ER@f.b.org frst.lst@foo.jp a+b@baz.cn]
@@ -63,6 +70,7 @@ describe User do
 		end
 	end
 
+
 	describe "when email address is already taken" do
 		before do
 			user_with_same_email = @user.dup
@@ -71,6 +79,7 @@ describe User do
 		end
 		it { should_not be_valid }
 	end
+
 
 	describe "email address with mixed case" do
 		let(:mixed_case_email) { "Foo@ExAMPle.CoM" }
@@ -81,15 +90,18 @@ describe User do
 		end
 	end
 
+
 	describe "when password is not present" do
 		before { @user.password = @user.password_confirmation = " " }
 		it { should_not be_valid }
 	end
 
+
 	describe "when password doesn't match confirmation" do
 		before { @user.password_confirmation = "mismatch" }
 		it { should_not be_valid }
 	end
+
 
 	describe "when password confirmation is nil" do
 		before { @user.password_confirmation = nil }
@@ -101,6 +113,7 @@ describe User do
 		before { @user.password = @user.password_confirmation = "a"*5 }
 		it { should be_invalid }
 	end
+
 
 	describe "return value of authenticate method" do
 		before { @user.save }
@@ -115,5 +128,11 @@ describe User do
 			it { should_not == user_for_invalid_password }
 			specify { user_for_invalid_password.should be_false }
 		end
+	end
+
+
+	describe "remember token" do
+		before { @user.save }
+		its(:remember_token) { should_not be_blank }
 	end
 end
